@@ -9,6 +9,7 @@ cloudinary.config({
 // TODO: optimize url
 export const uplaodOnCloudinary = async (uri) => {
   try {
+    console.log(uri)
     if (!uri) return null
     const response = await cloudinary.uploader.upload(uri, {
       resource_type: "auto",
@@ -20,5 +21,3 @@ export const uplaodOnCloudinary = async (uri) => {
     return null
   }
 }
-
-export { uplaodOnCloudinary }
