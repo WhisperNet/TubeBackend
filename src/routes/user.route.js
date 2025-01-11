@@ -17,6 +17,7 @@ router.route("/register").post(
   ]),
   registerUser
 )
+//
 router.route("/login").post(loginUser)
 router.route("/logout").post(asyncHandler(verifyjwt), logoutUser)
 router.route("/refresh-tokens").post(refreshTokens)

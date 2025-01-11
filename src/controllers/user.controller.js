@@ -58,9 +58,13 @@ const loginUser = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user._id
   )
+  const options = {
+    httpOnly: true,
+    secure: true,
+  }
   res
-    .cookie("accessToken", accessToken)
-    .cookie("refreshToken", refreshToken)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .status(200)
     .json(
       new ApiResponse(
@@ -89,10 +93,14 @@ const refreshTokens = asyncHandler(async (req, res) => {
       await generateAccessAndRefreshToken(user._id)
     user.refreshToken = newRefreshToken
     await user.save()
+    const options = {
+      httpOnly: true,
+      secure: true,
+    }
     res
       .status(200)
-      .cookie("accessToken", accessToken)
-      .cookie("refreshToken", newRefreshToken)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", newRefreshToken, options)
       .json(
         new ApiResponse(
           200,
