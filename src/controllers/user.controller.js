@@ -2,7 +2,10 @@ import { User } from "../models/user.model.js"
 import asyncHandler from "../utils/asyncHandler.utils.js"
 import ApiError from "../utils/ApiError.utils.js"
 import ApiResponse from "../utils/ApiResponse.utils.js"
-import { uplaodOnCloudinary } from "../utils/cloudinary.utils.js"
+import {
+  uplaodOnCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.utils.js"
 import { generateAccessAndRefreshToken } from "../utils/generateTokens.utils.js"
 import jwt from "jsonwebtoken"
 const registerUser = asyncHandler(async (req, res) => {
@@ -22,15 +25,18 @@ const registerUser = asyncHandler(async (req, res) => {
   const coverImageLocal = req.files?.coverImage
     ? req.files.coverImage[0]?.path
     : null
-  const { url: avatar } = await uplaodOnCloudinary(avatarLocal)
-  const { url: coverImage } = await uplaodOnCloudinary(coverImageLocal)
+  const avatarObj = await uplaodOnCloudinary(avatarLocal)
+  const coverObj = await uplaodOnCloudinary(coverImageLocal)
+
   const user = await User.create({
     username: username.toLowerCase(),
     email: email.toLowerCase(),
     fullName,
     password,
-    avatar: avatar ? avatar : undefined,
-    coverImage: coverImage ? coverImage : undefined,
+    avatar: avatarObj ? avatar.url : undefined,
+    coverImage: coverObj ? coverObj.url : undefined,
+    avatarId: avatarObj ? avatarObj.public_id : undefined,
+    coverImageId: coverObj ? coverObj.public_id : undefined,
   })
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -112,4 +118,87 @@ const refreshTokens = asyncHandler(async (req, res) => {
     console.log(error)
   }
 })
-export { registerUser, loginUser, logoutUser, refreshTokens }
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const { email, fullName } = req.body
+  if (!email.trim() && !fullName.trim())
+    throw new ApiError(400, "Email and full name is required")
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        fullName,
+        email,
+      },
+    },
+    { new: true }
+  ).select("-password -refreshToken")
+  res
+    .status(200)
+    .json(new ApiResponse(200, updatedUser, "User Profile updated"))
+})
+const updateAvatar = asyncHandler(async (req, res) => {
+  const localUri = req.file?.path
+  if (!localUri) throw new ApiError(400, "Avatar image missing")
+  const { url, public_id } = await uplaodOnCloudinary(localUri)
+  if (!url)
+    throw new ApiError(
+      500,
+      "Something went wrong while trying to upload the file"
+    )
+  await deleteFromCloudinary(req.user.avatarId)
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: { avatar: url, avatarId: public_id } },
+    { new: true }
+  )
+  res
+    .status(200)
+    .json(new ApiResponse(200, user.avatar, "Avatar updated successfully"))
+})
+const updateCoverImage = asyncHandler(async (req, res) => {
+  const localUri = req.file?.path
+  if (!localUri) throw new ApiError(400, "Cover image missing")
+  const { url, public_id } = await uplaodOnCloudinary(localUri)
+  if (!url)
+    throw new ApiError(
+      500,
+      "Something went wrong while trying to upload the file"
+    )
+  await deleteFromCloudinary(req.user.coverImageId)
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: { coverImage: url, coverImageId: public_id } },
+    { new: true }
+  )
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, user.coverImage, "Cover Image updated successfully")
+    )
+})
+const updatePassword = asyncHandler(async (req, res) => {
+  const { password, newPassword } = req.body
+  if (!password.trim() || !newPassword.trim())
+    throw new ApiError(400, "Missing required field")
+  const isPasswordCorrect = await req.user.isPasswordCorrect(password)
+  if (!isPasswordCorrect) throw new ApiError(400, "Incorrect Password")
+  req.user.password = newPassword
+  await req.user.save()
+  res
+    .status(200)
+    .clearCookie("refreshToken")
+    .clearCookie("accessToken")
+    .json(
+      new ApiResponse(200, { success: true }, "Password updated successfully")
+    )
+})
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshTokens,
+  updateUserProfile,
+  updateAvatar,
+  updateCoverImage,
+  updatePassword,
+}

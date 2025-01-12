@@ -9,10 +9,10 @@ cloudinary.config({
 // TODO: optimize url
 export const uplaodOnCloudinary = async (uri) => {
   try {
-    console.log(uri)
     if (!uri) return null
     const response = await cloudinary.uploader.upload(uri, {
       resource_type: "auto",
+      folder: "tube-backend",
     })
     fs.unlinkSync(uri)
     return response
@@ -20,4 +20,9 @@ export const uplaodOnCloudinary = async (uri) => {
     fs.unlinkSync(uri)
     return null
   }
+}
+export const deleteFromCloudinary = async (id) => {
+  if (!id) return null
+  const res = await cloudinary.uploader.destroy(id)
+  return res
 }

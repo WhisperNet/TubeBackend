@@ -28,9 +28,15 @@ const userSchema = new Schema(
       type: String,
       default: "/picture/avatar.png",
     },
+    avatarId: {
+      type: String,
+    },
     coverImage: {
       type: String,
       default: "/picture/cover.png",
+    },
+    coverImageId: {
+      type: String,
     },
     watchHistory: [
       {
