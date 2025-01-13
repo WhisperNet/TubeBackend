@@ -11,6 +11,8 @@ import {
   updateAvatar,
   updateCoverImage,
   updatePassword,
+  getUserProfile,
+  getCurrentUser,
 } from "../controllers/user.controller.js"
 const router = Router()
 
@@ -25,6 +27,7 @@ router.route("/register").post(
 router.route("/login").post(loginUser)
 router.route("/logout").post(asyncHandler(verifyjwt), logoutUser)
 router.route("/refresh-tokens").post(refreshTokens)
+router.route("/").get(asyncHandler(verifyjwt), getCurrentUser)
 router
   .route("/update-user-profile")
   .patch(asyncHandler(verifyjwt), updateUserProfile)
@@ -35,4 +38,5 @@ router
   .route("/update-coverimage")
   .patch(asyncHandler(verifyjwt), upload.single("coverImage"), updateCoverImage)
 router.route("/update-password").patch(asyncHandler(verifyjwt), updatePassword)
+router.route("/c/:channel").get(asyncHandler(verifyjwt), getUserProfile)
 export default router

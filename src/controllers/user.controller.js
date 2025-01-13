@@ -118,6 +118,9 @@ const refreshTokens = asyncHandler(async (req, res) => {
     console.log(error)
   }
 })
+const getCurrentUser = asyncHandler(async (req, res) => {
+  res.status(200).json(new ApiResponse(200, req?.user, "Current User Data"))
+})
 const updateUserProfile = asyncHandler(async (req, res) => {
   const { email, fullName } = req.body
   if (!email.trim() && !fullName.trim())
@@ -192,13 +195,69 @@ const updatePassword = asyncHandler(async (req, res) => {
       new ApiResponse(200, { success: true }, "Password updated successfully")
     )
 })
+// ToDo : Testing when video data is available
+const getUserProfile = asyncHandler(async (req, res) => {
+  const { channel } = req.params
+  if (!channel?.trim()) throw new ApiError(400, "Channel name is missing")
+  const userProfile = await User.aggregate([
+    {
+      $match: {
+        username: "admin",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribersList",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscriberToList",
+      },
+    },
+    {
+      $addFields: {
+        subscribers: { $size: "$subscribersList" },
+        subscriberTo: { $size: "$subscriberToList" },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user._id, "$subscribersList.subscriber"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        avatar: 1,
+        coverImage: 1,
+        fullName: 1,
+        username: 1,
+        subscribers: 1,
+        subscriberTo: 1,
+        isSubscribed: 1,
+      },
+    },
+  ])
+  if (!userProfile) throw new ApiError(404, "Channel not found")
+  res.status(200).json(new ApiResponse(200, userProfile[0], "Channel found"))
+})
 export {
   registerUser,
   loginUser,
   logoutUser,
   refreshTokens,
+  getCurrentUser,
   updateUserProfile,
   updateAvatar,
   updateCoverImage,
   updatePassword,
+  getUserProfile,
 }

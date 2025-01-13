@@ -8,7 +8,7 @@ const verifyjwt = async (req, res, next) => {
   if (!accessToken) throw new ApiError(401, "Unauthorized access")
   try {
     const { id } = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
-    const user = await User.findById(id)
+    const user = await User.findById(id).select("-password")
     req.user = user
     next()
   } catch (error) {

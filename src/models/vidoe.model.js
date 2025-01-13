@@ -30,6 +30,10 @@ const videoSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    creatorUserName: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 )
