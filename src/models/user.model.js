@@ -51,6 +51,10 @@ const userSchema = new Schema(
     refreshToken: {
       type: String,
     },
+    isSubscriptionsPublic: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 )

@@ -33,7 +33,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email: email.toLowerCase(),
     fullName,
     password,
-    avatar: avatarObj ? avatar.url : undefined,
+    avatar: avatarObj ? avatarObj.url : undefined,
     coverImage: coverObj ? coverObj.url : undefined,
     avatarId: avatarObj ? avatarObj.public_id : undefined,
     coverImageId: coverObj ? coverObj.public_id : undefined,
@@ -202,7 +202,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
   const userProfile = await User.aggregate([
     {
       $match: {
-        username: "admin",
+        username: channel,
       },
     },
     {
@@ -247,7 +247,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     },
   ])
   if (!userProfile) throw new ApiError(404, "Channel not found")
-  res.status(200).json(new ApiResponse(200, userProfile[0], "Channel found"))
+  res.status(200).json(new ApiResponse(200, userProfile, "Channel found"))
 })
 export {
   registerUser,
