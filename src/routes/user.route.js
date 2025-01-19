@@ -13,6 +13,7 @@ import {
   updatePassword,
   getUserProfile,
   getCurrentUser,
+  updateSubscriptionPrivacy,
 } from "../controllers/user.controller.js"
 const router = Router()
 
@@ -38,5 +39,8 @@ router
   .route("/update-coverimage")
   .patch(asyncHandler(verifyjwt), upload.single("coverImage"), updateCoverImage)
 router.route("/update-password").patch(asyncHandler(verifyjwt), updatePassword)
+router
+  .route("/update-subscription-privacy")
+  .patch(asyncHandler(verifyjwt), updateSubscriptionPrivacy)
 router.route("/c/:channel").get(asyncHandler(verifyjwt), getUserProfile)
 export default router

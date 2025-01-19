@@ -51,7 +51,6 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body
-  console.log(username, email, password)
   if (!username && !email) {
     throw new ApiError(401, "Missing required data fields")
   }
@@ -195,6 +194,11 @@ const updatePassword = asyncHandler(async (req, res) => {
       new ApiResponse(200, { success: true }, "Password updated successfully")
     )
 })
+const updateSubscriptionPrivacy = asyncHandler(async (req, res) => {
+  req.user.isSubscriptionsPublic = !req.user.isSubscriptionsPublic
+  const updatedUser = await req.user.save()
+  res.status(200).json(updatedUser)
+})
 // ToDo : Testing when video data is available
 const getUserProfile = asyncHandler(async (req, res) => {
   const { channel } = req.params
@@ -260,4 +264,5 @@ export {
   updateCoverImage,
   updatePassword,
   getUserProfile,
+  updateSubscriptionPrivacy,
 }

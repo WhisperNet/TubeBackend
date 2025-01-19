@@ -16,6 +16,8 @@ app.use(express.static("public"))
 
 import userRoutes from "./routes/user.route.js"
 import subscriptionRoutes from "./routes/subscription.route.js"
+import videoRoutes from "./routes/video.route.js"
 app.use("/api/v1/user", userRoutes)
-app.use("/api/v1/c/", subscriptionRoutes)
+app.use("/api/v1/c", subscriptionRoutes)
+app.use("/api/v1/video", videoRoutes)
 export default app
