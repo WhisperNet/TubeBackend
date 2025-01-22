@@ -6,6 +6,53 @@ import ApiResponse from "../utils/ApiResponse.utils.js"
 import asyncHandler from "../utils/asyncHandler.utils.js"
 import { uplaodOnCloudinary } from "../utils/cloudinary.utils.js"
 
+const getVideos = asyncHandler(async (req, res) => {
+  let {
+    page = 1,
+    limit = 10,
+    query,
+    sortBy = "createdAt",
+    sortType = 1,
+    user = "",
+  } = req.query
+  query = query ? `(?i)${query}` : "(?i)"
+  const aggregate = Video.aggregate([
+    {
+      $match: {
+        title: {
+          $regex: query,
+        }, //var of (?i)something or (?i)
+      },
+    },
+    {
+      $match: {
+        creatorUserName: {
+          $regex: user,
+        }, // var of username or ""
+      },
+    },
+    {
+      $sort: {
+        [sortBy]: Number(sortType), //title and 1 both var
+      },
+    },
+  ])
+  const options = {
+    page, // Current page
+    limit, // Results per page
+    customLabels: {
+      // Optional: Customize labels
+      totalDocs: "totalItems",
+      docs: "items",
+      limit: "perPage",
+      page: "currentPage",
+      totalPages: "totalPageCount",
+    },
+  }
+  const videos = await Video.aggregatePaginate(aggregate, options)
+  if (!videos) res.status(404).json(new ApiError(404, "Nothing found"))
+  res.status(200).json(new ApiResponse(200, videos))
+})
 const uploadVideo = asyncHandler(async (req, res) => {
   const { title, description, isPublished = true } = req.body
   if (!title || !description) throw new ApiError(400, "Missing required field")
@@ -67,4 +114,4 @@ const updateVideo = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, video, "Successfully updated the video"))
 })
-export { uploadVideo, wtachVideo, toggleVideoStatus, updateVideo }
+export { uploadVideo, wtachVideo, toggleVideoStatus, updateVideo, getVideos }

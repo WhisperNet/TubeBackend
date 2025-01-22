@@ -7,18 +7,22 @@ import {
   updateVideo,
   uploadVideo,
   wtachVideo,
+  getVideos,
 } from "../controllers/video.controller.js"
 import { videoCreator } from "../middlewares/videoCreator.middleware.js"
 const router = Router()
 
-router.use(asyncHandler(verifyjwt))
-router.route("/").post(
-  upload.fields([
-    { name: "video", maxCount: 1 },
-    { name: "thumbnail", maxCount: 1 },
-  ]),
-  uploadVideo
-)
+// router.use(asyncHandler(verifyjwt))
+router
+  .route("/")
+  .post(
+    upload.fields([
+      { name: "video", maxCount: 1 },
+      { name: "thumbnail", maxCount: 1 },
+    ]),
+    uploadVideo
+  )
+  .get(getVideos)
 router
   .route("/:id")
   .get(asyncHandler(verifyjwt), wtachVideo)

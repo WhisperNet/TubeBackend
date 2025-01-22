@@ -17,7 +17,11 @@ app.use(express.static("public"))
 import userRoutes from "./routes/user.route.js"
 import subscriptionRoutes from "./routes/subscription.route.js"
 import videoRoutes from "./routes/video.route.js"
+import tweetRoutes from "./routes/tweet.router.js"
+import commentRoutes from "./routes/comment.router.js"
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/c", subscriptionRoutes)
 app.use("/api/v1/video", videoRoutes)
+app.use("/api/v1/tweet", tweetRoutes)
+app.use("/api/v1/comment", commentRoutes)
 export default app
