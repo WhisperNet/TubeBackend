@@ -6,12 +6,14 @@ import {
   postCommentOnVideo,
   postCommentOnTweet,
   updateComment,
+  getCommentOnTweet,
+  getCommentOnVideo,
 } from "../controllers/comment.controller.js "
 const router = Router()
 
 router.use(asyncHandler(verifyjwt))
-router.route("/video/:id").post(postCommentOnVideo)
-router.route("/tweet/:id").post(postCommentOnTweet)
+router.route("/video/:id").post(postCommentOnVideo).get(getCommentOnVideo)
+router.route("/tweet/:id").post(postCommentOnTweet).get(getCommentOnTweet)
 router.route("/:id").patch(asyncHandler(commentAuthorization), updateComment)
 
 export default router

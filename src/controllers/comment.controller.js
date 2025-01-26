@@ -61,5 +61,23 @@ const updateComment = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, updatedComment, "Comment updated succesfully"))
 })
-//TODO: get comment on videos and tweet ,also try DRY
-export { postCommentOnVideo, postCommentOnTweet, updateComment }
+const getCommentOnVideo = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const comments = await Comment.find({
+    video: new mongoose.Types.ObjectId(id),
+  })
+  res.status(200).json(new ApiResponse(200, comments))
+})
+const getCommentOnTweet = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const tweetss = await Comment.find({ tweet: new mongoose.Types.ObjectId(id) })
+  res.status(200).json(new ApiResponse(200, tweetss))
+})
+
+export {
+  postCommentOnVideo,
+  postCommentOnTweet,
+  updateComment,
+  getCommentOnTweet,
+  getCommentOnVideo,
+}
