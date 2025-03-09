@@ -35,7 +35,7 @@ const postCommentOnTweet = asyncHandler(async (req, res) => {
   const creator = req?.user
   if (!content) throw new ApiError(400, "Comment can not be empty")
   const tweet = await Tweet.findById(new mongoose.Types.ObjectId(id))
-  if (!tweet) throw new ApiError(404, "Video not found")
+  if (!tweet) throw new ApiError(404, "tweet not found")
   const comment = await Comment.create({
     content,
     creator,
@@ -73,11 +73,20 @@ const getCommentOnTweet = asyncHandler(async (req, res) => {
   const tweetss = await Comment.find({ tweet: new mongoose.Types.ObjectId(id) })
   res.status(200).json(new ApiResponse(200, tweetss))
 })
-
+const deleteComment = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const result = await Comment.deleteMany({
+    _id: new mongoose.Types.ObjectId(id),
+  })
+  res
+    .status(200)
+    .json(new ApiResponse(200, null, "Successfully deleted the comment"))
+})
 export {
   postCommentOnVideo,
   postCommentOnTweet,
   updateComment,
   getCommentOnTweet,
   getCommentOnVideo,
+  deleteComment,
 }

@@ -33,4 +33,11 @@ const updateTweet = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, updateTweet, "Successfully updated the tweet"))
 })
-export { createTweet, getUserTweets, updateTweet }
+const deleteTweet = asyncHandler(async (req, res) => {
+  const result = await Tweet.deleteMany({ _id: req.tweet._id })
+  console.log("Result from tweet controller", result)
+  res
+    .status(200)
+    .json(new ApiResponse(200, null, "Sucessfully deleted the tweet"))
+})
+export { createTweet, getUserTweets, updateTweet, deleteTweet }

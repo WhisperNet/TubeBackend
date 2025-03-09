@@ -12,7 +12,7 @@ import {
 import { videoCreator } from "../middlewares/videoCreator.middleware.js"
 const router = Router()
 
-// router.use(asyncHandler(verifyjwt))
+router.use(asyncHandler(verifyjwt))
 router
   .route("/")
   .post(
@@ -25,10 +25,10 @@ router
   .get(getVideos)
 router
   .route("/:id")
-  .get(asyncHandler(verifyjwt), wtachVideo)
-  .patch(asyncHandler(verifyjwt), asyncHandler(videoCreator), updateVideo)
+  .get(wtachVideo)
+  .patch(asyncHandler(videoCreator), updateVideo)
 router
   .route("/:id/video-status")
-  .patch(asyncHandler(verifyjwt), asyncHandler(videoCreator), toggleVideoStatus)
+  .patch(asyncHandler(videoCreator), toggleVideoStatus)
 
 export default router
